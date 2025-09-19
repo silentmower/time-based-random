@@ -1,30 +1,34 @@
-# ⏱️ Millisecond → Random Number Generator
+# ⏱️ Deterministic Time-Based Random Number Generator
 
-This Python program generates a **deterministic random number for every millisecond of the day**.  
-That means each unique millisecond (since midnight) always maps to the same random number.
+This Python program generates **deterministic random numbers** based on time.  
+It has two modes:
+
+1. **Real-Time Mode** – Displays a random number for the current exact time (updates every millisecond).
+2. **Specific Time Mode** – Allows the user to input a specific time and returns the corresponding random number.
 
 ---
 
 ## 🚀 Features
-- Shows current **time with milliseconds**.
-- Displays **milliseconds since midnight** (0 → 86,399,999).
-- Maps each millisecond to a random number (1–1000 by default).
-- **Deterministic**: the same millisecond always produces the same number.
-- Updates **every millisecond** in real time.
-- User-friendly output with clear formatting.
-- Stops safely with `CTRL + C`.
+
+- Shows **current time with milliseconds** in real-time mode.
+- Calculates a random number for a **user-specified time**.
+- Deterministic: same exact time always produces the same number.
+- User-friendly menu with options.
+- Safe exit with `CTRL+C` in real-time mode.
 
 ---
 
 ## 📦 Requirements
+
 - Python **3.8+**
 - Standard library only (`datetime`, `time`, `random`).
 
 ---
 
 ## ▶️ Usage
-1. Clone or copy this project.
-2. Run the program in your terminal:
+
+1. Run the program:
 
 ```bash
-python main.py
+python time_random_menu.py
+```
