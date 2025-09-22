@@ -1,34 +1,37 @@
-# ⏱️ Deterministic Time-Based Random Number Generator
+# ⏱️ time-based-random
 
-This Python program generates **deterministic random numbers** based on time.  
-It has two modes:
 
-1. **Real-Time Mode** – Displays a random number for the current exact time (updates every millisecond).
-2. **Specific Time Mode** – Allows the user to input a specific time and returns the corresponding random number.
+Deterministic random numbers based on an exact time (HH:MM:SS.mmm). This project bundles several ways to interact with the mapping:
 
----
 
-## 🚀 Features
+- CLI real-time mode (updates every millisecond)
+- CLI specific-time lookup
+- Tkinter GUI
+- Real-time histogram visualization (matplotlib)
+- Logging (CSV / SQLite) and basic analysis
+- FastAPI HTTP endpoints for programmatic access
+- Small "lottery" and deterministic password-generator modes
 
-- Shows **current time with milliseconds** in real-time mode.
-- Calculates a random number for a **user-specified time**.
-- Deterministic: same exact time always produces the same number.
-- User-friendly menu with options.
-- Safe exit with `CTRL+C` in real-time mode.
 
----
+## Features
+- Deterministic: same exact time string always produces the same number
+- Configurable number range
+- Lotto mode (N numbers)
+- Deterministic password generator based on time
+- Optional sound mapping (play a note assigned to a number)
 
-## 📦 Requirements
 
-- Python **3.8+**
-- Standard library only (`datetime`, `time`, `random`).
+## Requirements
+- Python 3.8+
+- Optional packages (for advanced features):
+- `matplotlib` (visualization)
+- `fastapi` and `uvicorn` (API server)
+- `pandas` (analysis convenience)
+- `simpleaudio` or other (optional sound playback)
 
----
 
-## ▶️ Usage
+Install optional dependencies:
 
-1. Run the program:
 
 ```bash
-python time_random_menu.py
-```
+pip install matplotlib fastapi uvicorn pandas simpleaudio

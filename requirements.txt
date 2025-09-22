@@ -1,0 +1,6 @@
+# optional dependencies
+matplotlib
+fastapi
+uvicorn
+pandas
+simpleaudio
