@@ -1,37 +1,23 @@
-# ⏱️ time-based-random
+# ⏱️ Time-Based Random Number Generator
 
+A deterministic random number generator based on the current time.  
+Each millisecond of the day is mapped to a unique random number in a reproducible way.  
+This means the same timestamp will **always** return the same number.
 
-Deterministic random numbers based on an exact time (HH:MM:SS.mmm). This project bundles several ways to interact with the mapping:
+---
 
+## 🔹 Features
+- **Real-Time Mode** – continuously shows the number assigned to the current millisecond.  
+- **Specific Time Mode** – enter any time (hour, minute, second, millisecond) to get the corresponding number.  
+- **Live Plot Mode** – visualize numbers updating in real-time on a graph (matplotlib).  
+- **History Mode** – log all generated numbers to a CSV file.  
+- **Custom Range Mode** – generate numbers in a user-defined range (e.g. 100–500).  
 
-- CLI real-time mode (updates every millisecond)
-- CLI specific-time lookup
-- Tkinter GUI
-- Real-time histogram visualization (matplotlib)
-- Logging (CSV / SQLite) and basic analysis
-- FastAPI HTTP endpoints for programmatic access
-- Small "lottery" and deterministic password-generator modes
+---
 
+## 🔹 Installation
 
-## Features
-- Deterministic: same exact time string always produces the same number
-- Configurable number range
-- Lotto mode (N numbers)
-- Deterministic password generator based on time
-- Optional sound mapping (play a note assigned to a number)
-
-
-## Requirements
-- Python 3.8+
-- Optional packages (for advanced features):
-- `matplotlib` (visualization)
-- `fastapi` and `uvicorn` (API server)
-- `pandas` (analysis convenience)
-- `simpleaudio` or other (optional sound playback)
-
-
-Install optional dependencies:
-
-
+Clone the repository:
 ```bash
-pip install matplotlib fastapi uvicorn pandas simpleaudio
+git clone https://github.com/<your-username>/time-based-random.git
+cd time-based-random
