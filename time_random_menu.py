@@ -1,164 +1,170 @@
 import time
 import datetime
 import random
+import string
 import matplotlib.pyplot as plt
-import json
-import statistics
 
-# Core generator
-def number_for_timestamp(hour, minute, second, millisecond, min_val=1, max_val=1000):
-    timestamp = (hour * 3600000 +
-                 minute * 60000 +
-                 second * 1000 +
-                 millisecond)
-    random.seed(timestamp)
-    return random.randint(min_val, max_val), timestamp
 
-def number_for_current_time(min_val=1, max_val=1000):
+# ---------- CORE GENERATOR ----------
+def number_for_current_time():
+    """Generate a deterministic random number for the current time (down to milliseconds)."""
     now = datetime.datetime.now()
-    num, ts = number_for_timestamp(now.hour, now.minute, now.second, now.microsecond // 1000, min_val, max_val)
-    return now.strftime("%H:%M:%S.%f")[:-3], num, ts
+    timestamp = (
+        now.hour * 3600000 +
+        now.minute * 60000 +
+        now.second * 1000 +
+        int(now.microsecond / 1000)
+    )
+    random.seed(timestamp)
+    return now.strftime("%H:%M:%S.%f")[:-3], random.randint(1, 1000), timestamp
 
-# === MODES ===
 
-def real_time_mode():
-    print("\n🔹 Real-Time Mode (press CTRL+C to stop)\n")
-    try:
-        while True:
-            t_str, num, _ = number_for_current_time()
-            print(f"{t_str} ➝ Random number: {num}")
-            time.sleep(0.01)
-    except KeyboardInterrupt:
-        print("\nStopped. Returning to menu.\n")
+def number_for_specific_time(h, m, s, ms):
+    """Generate a deterministic random number for a manually entered time."""
+    timestamp = h * 3600000 + m * 60000 + s * 1000 + ms
+    random.seed(timestamp)
+    t_str = f"{h:02d}:{m:02d}:{s:02d}.{ms:03d}"
+    return t_str, random.randint(1, 1000), timestamp
 
-def specific_time_mode():
-    print("\n🔹 Specific Time Mode\n")
-    hour = int(input("Enter hour (0-23): "))
-    minute = int(input("Enter minute (0-59): "))
-    second = int(input("Enter second (0-59): "))
-    millisecond = int(input("Enter millisecond (0-999): "))
-    num, ts = number_for_timestamp(hour, minute, second, millisecond)
-    print(f"\nTime: {hour:02}:{minute:02}:{second:02}.{millisecond:03} ➝ Number: {num} (seed={ts})\n")
+
+# ---------- EXTRA MODES ----------
+def is_prime(n: int) -> bool:
+    """Check if a number is prime."""
+    if n < 2:
+        return False
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0:
+            return False
+    return True
+
+
+def prime_mode():
+    """Check if the generated number is prime, and if not, find the nearest prime."""
+    print("\n🔹 Prime Mode\n")
+    t_str, num, _ = number_for_current_time()
+    if is_prime(num):
+        print(f"{t_str} ➝ {num} is prime ✅\n")
+    else:
+        # find nearest prime both up and down
+        up, down = num + 1, num - 1
+        while not is_prime(up):
+            up += 1
+        while down > 1 and not is_prime(down):
+            down -= 1
+        nearest = down if abs(num - down) < abs(num - up) else up
+        print(f"{t_str} ➝ {num} is not prime ❌, nearest prime is {nearest}\n")
+
+
+def ascii_art_mode():
+    """Convert number to ASCII character and simple visual bar."""
+    print("\n🔹 ASCII Art Mode\n")
+    t_str, num, _ = number_for_current_time()
+    char = chr(32 + (num % 95))  # map number to ASCII range from space to '~'
+    print(f"{t_str} ➝ {num} ➝ ASCII: {char}\n")
+    print(char * (num % 50))  # print character repeated N times
+
+
+def password_mode():
+    """Generate a deterministic password from the current timestamp as seed."""
+    print("\n🔹 Password Mode\n")
+    t_str, num, ts = number_for_current_time()
+    random.seed(ts)
+    chars = string.ascii_letters + string.digits + "!@#$%^&*"
+    password = "".join(random.choice(chars) for _ in range(10))
+    print(f"{t_str} ➝ Password: {password}\n")
+
+
+def lucky_number_mode():
+    """Generate a lucky number based on the current date (deterministic for that day)."""
+    print("\n🔹 Lucky Number of the Day\n")
+    today = datetime.date.today()
+    seed = int(today.strftime("%Y%m%d"))
+    random.seed(seed)
+    num = random.randint(1, 100)
+    print(f"Date: {today} ➝ Your lucky number is {num}\n")
+
 
 def live_plot_mode():
-    print("\n🔹 Live Plot Mode (press CTRL+C to stop)\n")
-    timestamps, numbers = [], []
+    """Show a live updating graph of numbers over time."""
+    print("\n🔹 Live Plot Mode (close the window to return to menu)\n")
     plt.ion()
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots()
+    xs, ys = [], []
 
     try:
         while True:
             t_str, num, _ = number_for_current_time()
-            timestamps.append(t_str)
-            numbers.append(num)
-
-            if len(numbers) > 50:
-                timestamps = timestamps[-50:]
-                numbers = numbers[-50:]
-
+            xs.append(datetime.datetime.now())
+            ys.append(num)
             ax.clear()
-            ax.plot(timestamps, numbers, marker="o", linestyle="-", color="blue")
-            ax.set_xlabel("Time (HH:MM:SS.ms)")
+            ax.plot(xs, ys, marker="o")
+            ax.set_title("Real-time Time-based Random Number")
+            ax.set_xlabel("Time")
             ax.set_ylabel("Random Number")
-            ax.set_title("Time-Based Random Numbers (Live)")
-            plt.xticks(rotation=45, ha="right")
-            plt.tight_layout()
             plt.pause(0.01)
     except KeyboardInterrupt:
         print("\nStopped plotting.\n")
+    finally:
         plt.ioff()
-        plt.show()
+        plt.close()
 
-def save_history_mode():
-    print("\n🔹 Save History Mode (press CTRL+C to stop)\n")
-    filename = "random_history.csv"
-    try:
-        with open(filename, "a") as f:
-            while True:
-                t_str, num, _ = number_for_current_time()
-                line = f"{t_str},{num}\n"
-                f.write(line)
-                print(line.strip())
-                time.sleep(0.1)
-    except KeyboardInterrupt:
-        print(f"\nStopped. History saved to {filename}\n")
 
-def custom_range_mode():
-    print("\n🔹 Custom Range Mode\n")
-    min_val = int(input("Enter minimum number: "))
-    max_val = int(input("Enter maximum number: "))
-    t_str, num, _ = number_for_current_time(min_val, max_val)
-    print(f"Now: {t_str} ➝ Random number ({min_val}-{max_val}): {num}\n")
-
-def batch_mode():
-    print("\n🔹 Batch Mode\n")
-    start_ms = int(input("Enter start time (ms since midnight): "))
-    end_ms = int(input("Enter end time (ms since midnight): "))
-    filename = "batch_results.csv"
-    with open(filename, "w") as f:
-        for ts in range(start_ms, end_ms+1):
-            hour = ts // 3600000
-            minute = (ts % 3600000) // 60000
-            second = (ts % 60000) // 1000
-            millisecond = ts % 1000
-            num, _ = number_for_timestamp(hour, minute, second, millisecond)
-            f.write(f"{hour:02}:{minute:02}:{second:02}.{millisecond:03},{num}\n")
-    print(f"Batch saved to {filename}\n")
-
-def statistics_mode():
-    print("\n🔹 Statistics Mode\n")
-    sample_size = int(input("How many samples? "))
-    nums = [number_for_current_time()[1] for _ in range(sample_size)]
-    print(f"Min: {min(nums)}, Max: {max(nums)}")
-    print(f"Mean: {statistics.mean(nums):.2f}, Median: {statistics.median(nums)}\n")
-
-def benchmark_mode():
-    print("\n🔹 Benchmark Mode\n")
-    iterations = int(input("How many iterations? "))
-    start = time.time()
-    for _ in range(iterations):
-        number_for_current_time()
-    elapsed = time.time() - start
-    print(f"Generated {iterations} numbers in {elapsed:.3f}s ({iterations/elapsed:.2f} ops/sec)\n")
-
-# === MENU ===
-
+# ---------- MENU ----------
 def menu():
     while True:
-        print("⏱️ Deterministic Random Number Generator")
+        print("\n⏱️ Deterministic Random Number Generator")
         print("1 - Real-time random number")
         print("2 - Enter a specific time")
-        print("3 - Live plot")
-        print("4 - Save history to file")
-        print("5 - Custom range")
-        print("6 - Batch mode (range of times)")
-        print("7 - Statistics mode")
-        print("8 - Benchmark mode")
+        print("3 - Live plot mode")
+        print("9 - Prime mode")
+        print("10 - ASCII art mode")
+        print("11 - Password mode")
+        print("12 - Lucky number of the day")
         print("0 - Exit")
 
-        choice = input("Enter choice (0-8): ")
+        choice = input("Enter choice (0-12): ")
 
         if choice == "1":
-            real_time_mode()
+            print("\n🔹 Real-Time Mode (press CTRL+C to stop)\n")
+            try:
+                while True:
+                    t_str, num, _ = number_for_current_time()
+                    print(f"{t_str} ➝ Random number: {num}")
+                    time.sleep(0.001)
+            except KeyboardInterrupt:
+                print("\nProgram stopped. Returning to menu.\n")
+
         elif choice == "2":
-            specific_time_mode()
+            print("\n🔹 Specific Time Mode\n")
+            h = int(input("Enter hour (0-23): "))
+            m = int(input("Enter minute (0-59): "))
+            s = int(input("Enter second (0-59): "))
+            ms = int(input("Enter millisecond (0-999): "))
+            t_str, num, _ = number_for_specific_time(h, m, s, ms)
+            print(f"Time: {t_str} ➝ Random number: {num}\n")
+
         elif choice == "3":
             live_plot_mode()
-        elif choice == "4":
-            save_history_mode()
-        elif choice == "5":
-            custom_range_mode()
-        elif choice == "6":
-            batch_mode()
-        elif choice == "7":
-            statistics_mode()
-        elif choice == "8":
-            benchmark_mode()
+
+        elif choice == "9":
+            prime_mode()
+
+        elif choice == "10":
+            ascii_art_mode()
+
+        elif choice == "11":
+            password_mode()
+
+        elif choice == "12":
+            lucky_number_mode()
+
         elif choice == "0":
-            print("Goodbye!")
+            print("Exiting...")
             break
+
         else:
-            print("Invalid choice, try again.\n")
+            print("❌ Invalid choice, try again.")
+
 
 if __name__ == "__main__":
     menu()
